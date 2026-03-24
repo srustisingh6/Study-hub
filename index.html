@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Study Hub</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    color: white;
+    background: #050505;
+}
+
+/* BACKGROUND */
+body::before {
+    content: "";
+    position: fixed;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(120deg, transparent, #00f7ff22, transparent);
+    animation: move 6s linear infinite;
+    z-index: -1;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(#00f7ff11 1px, transparent 1px),
+        linear-gradient(90deg, #00f7ff11 1px, transparent 1px);
+    background-size: 60px 60px;
+    z-index: -1;
+}
+
+@keyframes move {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(50%); }
+}
+
+/* HEADER */
+header {
+    text-align: center;
+    padding: 25px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 32px;
+    color: #00f7ff;
+    text-shadow: 0 0 15px #00f7ff;
+}
+
+/* NAV */
+nav {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+nav button {
+    background: transparent;
+    border: 1px solid #00f7ff;
+    color: #00f7ff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+nav button:hover {
+    background: #00f7ff;
+    color: black;
+}
+
+/* SECTIONS */
+.section {
+    display: none;
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+}
+
+.active {
+    display: flex;
+    justify-content: center;
+}
+
+/* CARD */
+.card {
+    background: #111;
+    padding: 30px;
+    border-radius: 15px;
+    border: 1px solid #00f7ff33;
+    box-shadow: 0 0 25px #00f7ff22;
+    width: 100%;
+    max-width: 650px;
+}
+
+/* LABEL */
+label {
+    font-size: 13px;
+    color: #aaa;
+}
+
+/* INPUT */
+input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    margin: 6px 0 16px;
+    border-radius: 10px;
+    border: none;
+    background: #1a1a1a;
+    color: white;
+}
+
+/* BUTTON */
+.main-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: #00f7ff;
+    color: black;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.main-btn:hover {
+    box-shadow: 0 0 15px #00f7ff;
+}
+
+/* OUTPUT */
+#output {
+    margin-top: 15px;
+    line-height: 1.6;
+}
+
+/* PROGRESS */
+.progress-bar {
+    margin-top: 15px;
+    height: 8px;
+    background: #222;
+    border-radius: 10px;
+}
+
+.progress {
+    height: 8px;
+    background: #00f7ff;
+    width: 0%;
+    border-radius: 10px;
+}
+
+/* GOAL */
+.goal {
+    text-align: center;
+    margin-top: 15px;
+    color: #00f7ff;
+    font-weight: bold;
+}
+
+/* TIMER */
+.timer {
+    text-align: center;
+    font-size: 40px;
+    margin: 20px 0;
+}
+
+/* DELETE */
+.delete-btn {
+    margin-left: 10px;
+    background: red;
+    border: none;
+    color: white;
+    padding: 3px 6px;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>⚡ STUDY HUB ⚡</header>
+
+<nav>
+    <button onclick="showTab('planner')">Planner</button>
+    <button onclick="showTab('saved')">Saved</button>
+    <button onclick="showTab('motivation')">Motivation</button>
+    <button onclick="showTab('timerTab')">Timer</button>
+</nav>
+
+<!-- PLANNER -->
+<div id="planner" class="section active">
+    <div class="card">
+
+        <h2>Create Study Plan</h2>
+
+        <label>Subjects</label>
+        <input type="text" id="subjects" placeholder="Enter subjects (e.g. Math, Physics)">
+
+        <label>Chapters</label>
+        <input type="text" id="chapters" placeholder="Enter chapters (e.g. Algebra, Optics)">
+
+        <label>Total Hours</label>
+        <input type="number" id="hours" placeholder="Total hours">
+
+        <button class="main-btn" onclick="generatePlan()">Generate Plan</button>
+
+        <div id="output"></div>
+
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+
+        <div class="goal" id="goal"></div>
+
+    </div>
+</div>
+
+<!-- TIMER -->
+<div id="timerTab" class="section">
+    <div class="card">
+        <h2>Study Timer</h2>
+
+        <label>Minutes</label>
+        <input type="number" id="minutes" placeholder="Enter minutes">
+
+        <div class="timer" id="timer">00:00</div>
+
+        <button class="main-btn" onclick="startTimer()">Start Timer</button>
+    </div>
+</div>
+
+<!-- SAVED -->
+<div id="saved" class="section">
+    <div class="card">
+        <h2>Your Plans</h2>
+        <ul id="plansList"></ul>
+    </div>
+</div>
+
+<!-- MOTIVATION -->
+<div id="motivation" class="section">
+    <div class="card">
+        <h2>Motivation</h2>
+        <p id="quote"></p>
+        <button class="main-btn" onclick="newQuote()">New Quote</button>
+    </div>
+</div>
+
+<script>
+function showTab(tab) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(tab).classList.add('active');
+}
+
+function savePlan(plan) {
+    let plans = JSON.parse(localStorage.getItem("plans")) || [];
+    plans.push(plan);
+    localStorage.setItem("plans", JSON.stringify(plans));
+    displayPlans();
+}
+
+function displayPlans() {
+    let plans = JSON.parse(localStorage.getItem("plans")) || [];
+    let list = document.getElementById("plansList");
+    list.innerHTML = "";
+
+    plans.forEach((p, i) => {
+        let li = document.createElement("li");
+        li.innerHTML = `${p} <input type="checkbox">
+        <button class="delete-btn" onclick="deletePlan(${i})">X</button>`;
+        list.appendChild(li);
+    });
+}
+
+function deletePlan(i) {
+    let plans = JSON.parse(localStorage.getItem("plans")) || [];
+    plans.splice(i, 1);
+    localStorage.setItem("plans", JSON.stringify(plans));
+    displayPlans();
+}
+
+function newQuote() {
+    const quotes = [
+        "Discipline beats motivation.",
+        "Focus now, flex later.",
+        "Consistency wins.",
+        "You vs You."
+    ];
+    document.getElementById("quote").innerText =
+        quotes[Math.floor(Math.random() * quotes.length)];
+}
+
+let interval;
+function startTimer() {
+    let time = document.getElementById("minutes").value * 60;
+    clearInterval(interval);
+
+    interval = setInterval(() => {
+        let m = Math.floor(time / 60);
+        let s = time % 60;
+        document.getElementById("timer").innerText =
+            `${m}:${s < 10 ? '0' : ''}${s}`;
+        time--;
+        if (time < 0) clearInterval(interval);
+    }, 1000);
+}
+
+function generatePlan() {
+    const subjects = document.getElementById("subjects").value.split(",");
+    const chapters = document.getElementById("chapters").value.split(",");
+    const hours = document.getElementById("hours").value;
+
+    let text = "";
+
+    subjects.forEach((sub, i) => {
+        let chap = chapters[i] ? chapters[i].trim() : "Revision";
+        text += `${sub.trim()} → ${chap}\n`;
+    });
+
+    text += "\nTip: Take 10 min breaks every hour";
+
+    document.getElementById("output").innerText = text;
+
+    document.getElementById("goal").innerText =
+        `🎯 Finish all subjects in ${hours} hrs`;
+
+    let progress = 0;
+    let bar = document.getElementById("progress");
+    bar.style.width = "0%";
+
+    let prog = setInterval(() => {
+        progress += 10;
+        bar.style.width = progress + "%";
+        if (progress >= 100) clearInterval(prog);
+    }, 500);
+
+    savePlan(text);
+}
+
+newQuote();
+displayPlans();
+</script>
+
+</body>
+</html>
