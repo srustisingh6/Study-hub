@@ -314,23 +314,20 @@ function generatePlan() {
     const chapters = document.getElementById("chapters").value.split(",");
     const hours = document.getElementById("hours").value;
 
-    // send data to backend
-    fetch("https://study-hub-5fhl.onrender.com/plan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            subjects: subjects,
-            hours: hours
-        })
-    })
-    .then(res => res.text())
-    .then(data => {
-        document.getElementById("output").innerText = data;
-        savePlan(data); // still save in localStorage
-    })
-    .catch(err => console.error("Backend error:", err));
+    let text = "";
 
-    // progress bar & goal (optional animation)
+    subjects.forEach((sub, i) => {
+        let chap = chapters[i] ? chapters[i].trim() : "Revision";
+        text += `${sub.trim()} → ${chap}\n`;
+    });
+
+    text += "\nTip: Take 10 min breaks every hour";
+
+    document.getElementById("output").innerText = text;
+
+    document.getElementById("goal").innerText =
+        `🎯 Finish all subjects in ${hours} hrs`;
+
     let progress = 0;
     let bar = document.getElementById("progress");
     bar.style.width = "0%";
@@ -341,8 +338,17 @@ function generatePlan() {
         if (progress >= 100) clearInterval(prog);
     }, 500);
 
-    document.getElementById("goal").innerText =
-        `🎯 Finish all subjects in ${hours} hrs`;
+    // ✅ Send plan to backend
+    fetch("https://study-hub-5fhl.onrender.com/plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subjects, hours: parseFloat(hours) })
+    })
+    .then(res => res.json())
+    .then(data => console.log("Plan saved:", data))
+    .catch(err => console.error("Error saving plan:", err));
+
+    savePlan(text);
 }
 
 newQuote();
