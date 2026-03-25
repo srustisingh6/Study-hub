@@ -200,8 +200,8 @@ input {
         <label>Subjects</label>
         <input type="text" id="subjects" placeholder="Enter subjects (e.g. Math, Physics)">
 
-        <label>Chapters</label>
-        <input type="text" id="chapters" placeholder="Enter chapters (e.g. Algebra, Optics)">
+        <label>Chapters (number of chapters per subject)</label>
+        <input type="text" id="chapters" placeholder="Enter number of chapters, e.g. 5,3">
 
         <label>Total Hours</label>
         <input type="number" id="hours" placeholder="Total hours">
@@ -309,44 +309,47 @@ function startTimer() {
     }, 1000);
 }
 
+// Fixed generatePlan() to calculate hours per chapter correctly
 function generatePlan() {
-    const subjects = document.getElementById("subjects").value.split(",");
-    const chapters = document.getElementById("chapters").value.split(",");
-    const hours = document.getElementById("hours").value;
+    const subjectsInput = document.getElementById("subjects").value;
+    const chaptersInput = document.getElementById("chapters").value;
+    const totalHours = parseFloat(document.getElementById("hours").value);
+
+    if (!subjectsInput || !chaptersInput || !totalHours) {
+        alert("Please fill in all fields correctly!");
+        return;
+    }
+
+    const subjects = subjectsInput.split(",").map(s => s.trim());
+    const chaptersArr = chaptersInput.split(",").map(c => parseInt(c.trim()));
+
+    if (chaptersArr.some(isNaN)) {
+        alert("Chapters must be numbers!");
+        return;
+    }
 
     let text = "";
 
     subjects.forEach((sub, i) => {
-        let chap = chapters[i] ? chapters[i].trim() : "Revision";
-        text += `${sub.trim()} → ${chap}\n`;
+        const chapCount = chaptersArr[i] || 1;
+        const hoursPerChapter = (totalHours / chapCount).toFixed(1);
+        text += `${sub} → ${chapCount} chapters → ${hoursPerChapter} hrs per chapter\n`;
     });
 
     text += "\nTip: Take 10 min breaks every hour";
 
     document.getElementById("output").innerText = text;
+    document.getElementById("goal").innerText = `🎯 Finish all subjects in ${totalHours} hrs`;
 
-    document.getElementById("goal").innerText =
-        `🎯 Finish all subjects in ${hours} hrs`;
-
+    // Animate progress bar
     let progress = 0;
-    let bar = document.getElementById("progress");
+    const bar = document.getElementById("progress");
     bar.style.width = "0%";
-
     let prog = setInterval(() => {
         progress += 10;
         bar.style.width = progress + "%";
         if (progress >= 100) clearInterval(prog);
     }, 500);
-
-    // ✅ Send plan to backend
-    fetch("https://study-hub-5fhl.onrender.com/plan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subjects, hours: parseFloat(hours) })
-    })
-    .then(res => res.json())
-    .then(data => console.log("Plan saved:", data))
-    .catch(err => console.error("Error saving plan:", err));
 
     savePlan(text);
 }
